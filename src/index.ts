@@ -93,15 +93,15 @@ const signTxn = async (target : string,amount : number , t : TonLink) =>
         messages: [
         ]
       }
-    txs.messages.push(
-        ton.internal(
-        {
-          to: target, 
-          value: amount,
-          bounce: false,
-        }
-      )
-    )
+    // txs.messages.push(
+    //     ton.internal(
+    //     {
+    //       to: target, 
+    //       value: amount,
+    //       bounce: false,
+    //     }
+    //   )
+    // )
     await walletContract.sendTransfer(txs);
 
 }
@@ -137,6 +137,12 @@ export class TonLink {
    * @returns 
    * 
    */
+
+  public static create(baseurl: string)
+  {
+    return new TonLink(baseurl,"","",1,"testnet","");
+  }
+
   public static fromRawData(raw:string)
   {
     const data = decodeLink(raw);
