@@ -79,38 +79,38 @@ const encodeLink = (baseUrl : string,s : string,c:string) =>
 ) 
 }
 
-const signTxn = async (target : string,amount : number , t : TonLink) =>
-{
-    const key = t.keypair
-    const keyData = TonLink.getTonKeyPair(t)
+// const signTxn = async (target : string,amount : number , t : TonLink) =>
+// {
+//     const key = t.keypair
+//     const keyData = TonLink.getTonKeyPair(t)
     
-    if(keyData)
-    {
-      const endpoint = await orbs.getHttpEndpoint({ network: t.network as orbs.Network } );
-      const client = new ton.TonClient({ endpoint });
-      let walletContract = client.open(keyData);
-      let seqno = await walletContract.getSeqno();
+//     if(keyData)
+//     {
+//       const endpoint = await orbs.getHttpEndpoint({ network: t.network as orbs.Network } );
+//       const client = new ton.TonClient({ endpoint });
+//       let walletContract = client.open(keyData);
+//       let seqno = await walletContract.getSeqno();
   
-      var txs = {
-          secretKey: key.secretKey,
-          seqno: seqno,
-          messages: [
-          ]
-        }
-      // txs.messages.push(
-      //     ton.internal(
-      //     {
-      //       to: target, 
-      //       value: amount,
-      //       bounce: false,
-      //     }
-      //   )
-      // )
-      await walletContract.sendTransfer(txs);
-    }
+//       var txs = {
+//           secretKey: key.secretKey,
+//           seqno: seqno,
+//           messages: [
+//           ]
+//         }
+//       // txs.messages.push(
+//       //     ton.internal(
+//       //     {
+//       //       to: target, 
+//       //       value: amount,
+//       //       bounce: false,
+//       //     }
+//       //   )
+//       // )
+//       await walletContract.sendTransfer(txs);
+//     }
 
 
-}
+// }
 
 
 

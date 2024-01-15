@@ -4,6 +4,8 @@ This repo is to build a browser base light wallet for TON blockchain
 
 It will allows anyone to send some `Cash Gift` by TON blockchain
 
+You can visit [npm](https://www.npmjs.com/settings/tonlink/members).
+
 ## Feature
 
 - Use `tonweb`` to make pair generate in EVM chain .
@@ -26,5 +28,9 @@ import { TonLink } from '@tonlink';
 ```
 Create a TonLink
 ```js
-
+const ton = TonLink.create("http://localhost/");
+```
+Recover from a link
+```js
+const ton = TonLink.create("http://localhost/");
 ```
