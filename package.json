@@ -22,7 +22,8 @@
     "ton": "^13.9.0",
     "ton-crypto": "^3.2.0",
     "tonweb": "^0.0.62",
-    "web3": "^1.10.0"
+    "web3": "^1.10.0",
+    "wif": "^4.0.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",

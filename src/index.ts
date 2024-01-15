@@ -2,13 +2,15 @@ import * as TonWeb from "tonweb";
 
 import * as tonc from "ton-crypto";
 
-import * as b58 from "b58";
+// import b58  from  "./tsb58"
+
+import b58 from "b58";
 
 import * as orbs from "@orbs-network/ton-access";
 
 import * as ton from "ton"
 
-const nacl = TonWeb.nacl;
+const nacl = TonWeb.default.utils.nacl
 
 /**
  * 
@@ -82,27 +84,31 @@ const signTxn = async (target : string,amount : number , t : TonLink) =>
     const key = t.keypair
     const keyData = TonLink.getTonKeyPair(t)
     
-    const endpoint = await orbs.getHttpEndpoint({ network: t.network });
-    const client = new ton.TonClient({ endpoint });
-    let walletContract = client.open(keyData);
-    let seqno = await walletContract.getSeqno();
+    if(keyData)
+    {
+      const endpoint = await orbs.getHttpEndpoint({ network: t.network as orbs.Network } );
+      const client = new ton.TonClient({ endpoint });
+      let walletContract = client.open(keyData);
+      let seqno = await walletContract.getSeqno();
+  
+      var txs = {
+          secretKey: key.secretKey,
+          seqno: seqno,
+          messages: [
+          ]
+        }
+      // txs.messages.push(
+      //     ton.internal(
+      //     {
+      //       to: target, 
+      //       value: amount,
+      //       bounce: false,
+      //     }
+      //   )
+      // )
+      await walletContract.sendTransfer(txs);
+    }
 
-    var txs = {
-        secretKey: key.secretKey,
-        seqno: seqno,
-        messages: [
-        ]
-      }
-    // txs.messages.push(
-    //     ton.internal(
-    //     {
-    //       to: target, 
-    //       value: amount,
-    //       bounce: false,
-    //     }
-    //   )
-    // )
-    await walletContract.sendTransfer(txs);
 
 }
 
@@ -125,7 +131,7 @@ export class TonLink {
   private constructor(baseurl: string, s: string ,link:string, workchain:number, network:string, addressType:string) {
     this.baseurl = (baseurl=="")?"http://localhost/":baseurl;
     this.keypair = (s=="")?newSecretKey():seedToKeypair(s);
-    this.link = (link=="")?encodeLink(this.baseurl,this.keypair.secretKey,""):link;
+    this.link = (link=="")?encodeLink(this.baseurl,this.keypair,""):link;
     this.workchain = workchain;
     this.network = (network=="")?"mainnet":network;
     this.addressType = (addressType == "")?"WalletContractV3R2":addressType;
@@ -176,6 +182,7 @@ export class TonLink {
       case "WalletContractV3R2":
         return ton.WalletContractV3R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       default :
+        return false;
         break;
     }
   }
