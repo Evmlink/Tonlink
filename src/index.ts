@@ -83,6 +83,7 @@ const sendTx = async (target : string,amount : number , t : TonLink ,body?:strin
 {
     const key = t.keypair
     const keyData = TonLink.getTonKeyPair(t)
+    body = (body=="")?t.payload:body;
     
     if(keyData)
     {
@@ -130,14 +131,16 @@ export class TonLink {
   workchain:number;
   network:string;
   addressType:string;
+  payload:string;
   //Init this object 
-  private constructor(baseurl: string, s: string ,link:string, workchain:number, network:string, addressType:string) {
+  private constructor(baseurl: string, s: string ,link:string, workchain:number, network:string, addressType:string , payload:string) {
     this.baseurl = (baseurl=="")?"http://localhost/":baseurl;
     this.keypair = (s=="")?seedToKeypair(newSecretKey()):seedToKeypair(s);
-    this.link = (link=="")?encodeLink(this.baseurl,b58.encode(this.keypair.secretKey),""):link;
+    this.link = (link=="")?encodeLink(this.baseurl,b58.encode(this.keypair.secretKey),payload):link;
     this.workchain = workchain;
     this.network = (network=="")?"mainnet":network;
     this.addressType = (addressType == "")?"WalletContractV4":addressType;
+    this.payload = payload;
   }
 
   /**
@@ -147,9 +150,10 @@ export class TonLink {
    * 
    */
 
-  public static create(baseurl: string)
+  public static create(baseurl: string,payload?:string)
   {
-    return new TonLink(baseurl,"","",0,"mainnet","");
+    payload = (!payload)?"":payload
+    return new TonLink(baseurl,"","",0,"mainnet","",payload);
   }
 
   public static fromRawData(raw:string)
@@ -163,7 +167,8 @@ export class TonLink {
         "",
         0,
         "mainnet",
-        ""
+        "",
+        data.c
       )
     }
     return false;
