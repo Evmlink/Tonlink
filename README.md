@@ -28,9 +28,10 @@ import { TonLink } from '@tonlink';
 ```
 Create a TonLink
 ```js
-const ton = TonLink.create("http://localhost/");
+const ton = TonLink.create("http://localhost/","Hello,ton");
 ```
 Recover from a link
 ```js
-const ton = TonLink.create("http://localhost/");
+const rawData = 'GbShaw6kj5XdWnqpmDcoeXq6gUtXtqdYdnejW58aAeRSZUZYLpRnFZ8X8zyFic9wyd6meGSUQapUAVA55dp85h2fCU8nHg1E3158fMPe3M5tZAoQytcxdga73aquiAbAFPTEkzBCK3zC3h3FgMLzQ'
+const ton = TonLink.fromRawData(rawData);
 ```
