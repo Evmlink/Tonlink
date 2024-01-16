@@ -15,15 +15,15 @@
   "license": "LicenseRef-LICENSE",
   "dependencies": {
     "@orbs-network/ton-access": "^2.3.3",
+    "@ton/crypto": "^3.2.0",
+    "@ton/ton": "^13.9.0",
     "b58": "^4.0.3",
     "crypto-js": "^4.1.1",
     "libsodium": "^0.7.11",
     "libsodium-wrappers-sumo": "^0.7.11",
-    "ton": "^13.9.0",
-    "ton-crypto": "^3.2.0",
     "tonweb": "^0.0.62",
-    "web3": "^1.10.0",
-    "wif": "^4.0.0"
+    "tweetnacl": "^1.0.3",
+    "web3": "^1.10.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",

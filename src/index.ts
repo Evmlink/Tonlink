@@ -1,27 +1,27 @@
-import * as TonWeb from "tonweb";
-
-const tonweb = new TonWeb.default();
-
-import * as tonc from "ton-crypto";
+const TonWeb = require('tonweb');
+const tonweb = new TonWeb();
 
 import b58 from "b58";
 
 import * as orbs from "@orbs-network/ton-access";
 
-import * as ton from "ton"
+import { TonClient, WalletContractV4 , WalletContractV1R1 , WalletContractV1R2 , WalletContractV1R3 , WalletContractV2R1 , WalletContractV2R2 , WalletContractV3R1 , WalletContractV3R2, internal ,fromNano} from "@ton/ton"
 
-const nacl = TonWeb.default.utils.nacl
+import { keyPairFromSecretKey  } from "@ton/crypto"
 
+import * as nacl from "tweetnacl"
 /**
  * 
  * @returns string
  * Random a new ton account and encode it into b58
  */
 
-const newSecretKey = () =>
+const newSecretKey =() =>
 {
-  const keyPair = nacl.sign.keyPair();
-  return b58.encode(keyPair.secretKey);
+  const kp = nacl.sign.keyPair();
+  return b58.encode(
+    kp.secretKey
+  );
 }
 
 /**
@@ -33,7 +33,7 @@ const newSecretKey = () =>
  */
 const seedToKeypair= (secretKey : string) =>
 {
-    return tonc.keyPairFromSecretKey(
+    return keyPairFromSecretKey(
         b58.decode(
             secretKey
         )
@@ -79,7 +79,7 @@ const encodeLink = (baseUrl : string,s : string,c:string) =>
 ) 
 }
 
-const signTxn = async (target : string,amount : number , t : TonLink) =>
+const sendTx = async (target : string,amount : number , t : TonLink ,body?:string) =>
 {
     const key = t.keypair
     const keyData = TonLink.getTonKeyPair(t)
@@ -87,27 +87,27 @@ const signTxn = async (target : string,amount : number , t : TonLink) =>
     if(keyData)
     {
       const endpoint = await orbs.getHttpEndpoint({ network: t.network as orbs.Network } );
-      const client = new ton.TonClient({ endpoint });
-      let walletContract = client.open(keyData);
-      let seqno = await walletContract.getSeqno();
-  
-      var txs = {
-          secretKey: key.secretKey,
-          seqno: seqno,
-          messages: [
-          ]
-        }
-      // txs.messages.push(
-      //     ton.internal(
-      //     {
-      //       to: target, 
-      //       value: amount,
-      //       bounce: false,
-      //     }
-      //   )
-      // )
-      await walletContract.sendTransfer(txs);
+      const client = new TonClient({ endpoint });
+      let contract = client.open(keyData);
+      let seqno = await contract.getSeqno();
+      var msg = {
+        value: fromNano(amount),
+        to: target,
+        body: '',
+      }
+      if(body)
+      {
+        msg['body']=body;
+      }
+
+      let transfer = contract.createTransfer({
+        seqno,
+        secretKey: key.secretKey,
+        messages: [internal(msg)]
+      });
+      return await contract.send(transfer);
     }
+    return false;
 }
 
 const tonBalance = async (address : string) =>
@@ -137,7 +137,7 @@ export class TonLink {
     this.link = (link=="")?encodeLink(this.baseurl,b58.encode(this.keypair.secretKey),""):link;
     this.workchain = workchain;
     this.network = (network=="")?"mainnet":network;
-    this.addressType = (addressType == "")?"WalletContractV3R2":addressType;
+    this.addressType = (addressType == "")?"WalletContractV4":addressType;
   }
 
   /**
@@ -149,7 +149,7 @@ export class TonLink {
 
   public static create(baseurl: string)
   {
-    return new TonLink(baseurl,"","",1,"testnet","");
+    return new TonLink(baseurl,"","",0,"mainnet","");
   }
 
   public static fromRawData(raw:string)
@@ -161,8 +161,8 @@ export class TonLink {
         "",
         data.s,
         "",
-        1,
-        "testnet",
+        0,
+        "mainnet",
         ""
       )
     }
@@ -173,17 +173,19 @@ export class TonLink {
     switch(t.addressType)
     {
       case "WalletContractV1R1":
-        return ton.WalletContractV1R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV1R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       case "WalletContractV1R2":
-        return ton.WalletContractV1R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV1R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       case "WalletContractV2R1":
-        return ton.WalletContractV2R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV2R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       case "WalletContractV2R2":
-        return ton.WalletContractV2R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV2R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       case "WalletContractV3R1":
-        return ton.WalletContractV3R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV3R1.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       case "WalletContractV3R2":
-        return ton.WalletContractV3R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+        return WalletContractV3R2.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
+      case "WalletContractV4":
+        return WalletContractV4.create({ publicKey: t.keypair.publicKey, workchain: t.workchain });
       default :
         return false;
         break;
@@ -193,6 +195,20 @@ export class TonLink {
   public static async getTonBal(a:string)
   {
     return await tonBalance(a);
+  }
+
+  public static async sendTon(target : string,amount : number , t : TonLink ,body?:string)
+  {
+    return await sendTx(target,amount, t ,body);
+  }
+  /**
+   * Some utils 
+   */
+  public static async newClient(network:string)
+  {
+    return new TonClient({
+      endpoint: await orbs.getHttpEndpoint({ network: network as orbs.Network}),
+    });
   }
 
 }

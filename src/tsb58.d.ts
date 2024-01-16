@@ -1,5 +1,5 @@
 declare module 'b58' {
-    import * as b58 from 'wif'
+    import * as b58 from 'b58'
     export default b58
 }
    
