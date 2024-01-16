@@ -1,5 +1,5 @@
-const TonWeb = require('tonweb');
-const tonweb = new TonWeb();
+import * as TonWeb from "tonweb";
+const tonweb = new TonWeb.default();
 
 import b58 from "b58";
 
@@ -88,9 +88,9 @@ const sendTx = async (target : string,amount : number , t : TonLink ,body?:strin
     {
       const endpoint = await orbs.getHttpEndpoint({ network: t.network as orbs.Network } );
       const client = new TonClient({ endpoint });
-      let contract = client.open(keyData);
-      let seqno = await contract.getSeqno();
-      var msg = {
+      const contract = client.open(keyData);
+      const seqno = await contract.getSeqno();
+      const msg = {
         value: fromNano(amount),
         to: target,
         body: '',
@@ -100,7 +100,7 @@ const sendTx = async (target : string,amount : number , t : TonLink ,body?:strin
         msg['body']=body;
       }
 
-      let transfer = contract.createTransfer({
+      const transfer = contract.createTransfer({
         seqno,
         secretKey: key.secretKey,
         messages: [internal(msg)]

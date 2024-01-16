@@ -1,8 +1,5 @@
 import { TonLink } from "../src";
 
-
-const orbs = require("@orbs-network/ton-access");
-
 // //Generate
 test("returns valid TonLink", async () => {
   const ton = TonLink.create("https://t.me/tonspay_bot/cash?startapp=");
@@ -31,9 +28,9 @@ test("Decode from link", async () => {
     if(a)
     {
       console.log(a.address.toString()) 
-        let client = await TonLink.newClient("mainnet");
-        let contract = client.open(a);
-        var bal = await contract.getBalance()
+      const client = await TonLink.newClient("mainnet");
+      const contract = client.open(a);
+      const bal = await contract.getBalance()
         console.log(bal)
 
         console.log(await TonLink.getTonBal(a.address.toString()))
